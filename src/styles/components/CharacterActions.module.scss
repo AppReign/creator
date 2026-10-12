@@ -19,9 +19,47 @@
     outline: none;
     border-color: #999;
   }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.45;
+    background: #eaeaea;
+    border-color: transparent;
+  }
 }
 
 .active {
   border-color: #ffffff;
   background: #d0e8ff;
+}
+
+.tipWrap {
+  position: relative;
+  display: inline-flex;
+
+  &:hover .tip,
+  &:focus-within .tip {
+    display: block;
+  }
+}
+
+.tip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 4;
+  width: max-content;
+  max-width: 240px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: #1b1f2a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
 }

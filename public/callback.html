@@ -6,10 +6,11 @@
 </head>
 <body>
 <script src="js/oidc-client.min.js"></script>
-<script src="js/oidcCallbackSettings.js"></script>
 <script>
 (function () {
-    var mgr = new Oidc.UserManager(getOidcCallbackSettings(Oidc));
+    var mgr = new Oidc.UserManager({
+        userStore: new Oidc.WebStorageStateStore({ store: window.localStorage })
+    });
 
     mgr.signinRedirectCallback()
         .then(function () {

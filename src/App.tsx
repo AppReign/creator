@@ -10,6 +10,7 @@ import { CreatorEquipmentProvider } from "./context/CreatorEquipmentContext";
 import EquipmentSetDetail from "./pages/equipmentSets/EquipmentSetDetail";
 import EquipmentSetsIndex from "./pages/equipmentSets/EquipmentSetsIndex";
 import EquipmentSetsLayout from "./pages/equipmentSets/EquipmentSetsLayout";
+import { EquipmentValidationProvider } from "./pages/equipmentSets/equipmentValidationContext";
 import CharacterBasePartUpload from "./pages/CharacterBasePartUpload";
 import EquipmentCharacterUpload from "./pages/EquipmentCharacterUpload";
 import UploadLayout from "./pages/UploadLayout";
@@ -27,6 +28,7 @@ const App = () => {
           <CharacterBaseSetsProvider>
             <BrowserRouter basename={process.env.PUBLIC_URL || ""}>
                   <AuthGate>
+                    <EquipmentValidationProvider>
                     <div className={layoutClasses.shell}>
                       <TopNav />
                       <main className={layoutClasses.main}>
@@ -48,6 +50,7 @@ const App = () => {
                         </Routes>
                       </main>
                     </div>
+                    </EquipmentValidationProvider>
                   </AuthGate>
                 </BrowserRouter>
           </CharacterBaseSetsProvider>

@@ -1,69 +1,126 @@
-.partList {
-  display: flex;
-  flex-wrap: wrap;
-  text-align: center;
-  margin: 25px 0;
-}
-
-.partItemWrapper {
+.listWrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 2px;
-  max-width: 80px;
+  min-height: 0;
 }
 
-.partItem {
-  border: 2px solid #eaeaea;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  border-radius: 25px;
-  background: #eaeaea;
-  position: relative;
-  line-height: 40px;
-}
-
-.partItemLabel {
-  font-size: 10px;
-  line-height: 1.2;
-  margin-top: 4px;
-  word-break: break-word;
-  color: #ffffff;
-}
-
-.partItemMissing {
-  border-color: #d94a4a;
-  background: rgba(220, 72, 72, 0.5);
+.search {
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.28);
   color: #fff;
-}
+  font: inherit;
+  font-size: 13px;
 
-.partItemChecking {
-  border-color: rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.22);
-}
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
 
-.partItemBadge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  z-index: 1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-}
-
-.partItemSelected {
-  &:before {
-    border: 2px solid #bfbcbc;
-    content: "";
-    border-radius: 50%;
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
+  &:focus {
+    outline: none;
+    border-color: #9ec5ff;
   }
 }
 
-.partItemLabelMissing {
-  color: #ff8a7a;
+.empty {
+  margin: 8px 0 16px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.partList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  max-height: min(520px, 60vh);
+  overflow: auto;
+}
+
+.partRow {
+  margin: 0;
+  padding: 0;
+}
+
+.partItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.partItemSelected {
+  border-color: #9ec5ff;
+  background: rgba(158, 197, 255, 0.18);
+
+  &:hover {
+    background: rgba(158, 197, 255, 0.24);
+  }
+}
+
+.partItemChecking {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.icon,
+.iconFallback {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.icon {
+  object-fit: contain;
+}
+
+.partItemLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.partItemBadge {
+  flex-shrink: 0;
+}
+
+.sexMarks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sexMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.sexMarkLabel {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.72);
 }

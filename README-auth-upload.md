@@ -28,25 +28,22 @@ db.users.updateOne({ _id: "USER_ID" }, { $set: { designer: true } })
 
 ## Environment configuration
 
-Config lives in `src/config/dotvEnv.ts` and is set via CRA env files:
+`npm start` follows `DEV_DOTV_ENV` in `src/config/dotvEnv.ts` (same idea as `stageEnv` in the web app's `packages/web/src/config/env.ts`). It defaults to stage. Set it to `"local"`, `"stage"`, or `"production"` and the dev server reloads.
+
+| `DEV_DOTV_ENV` | API | Login |
+|----------------|-----|-------|
+| `"local"` | `http://localhost:8082` | `login-stage` |
+| `"stage"` | `api-stage` | `login-stage` |
+| `"production"` | `api` | `login` |
+
+On `localhost`, OIDC always uses `dotv-creator-local` and `http://localhost:3000/callback.html`, so the callback stays on your machine. That client is in `dotv-login/Clients.cs` and has to be deployed to the login host you are calling before the redirect succeeds.
 
 | Command | Env file | API | Login |
 |---------|----------|-----|-------|
-| `npm start` | `.env.development` | `api-stage` | `login-stage` |
-| `npm run start:stage` | `.env.staging` | `api-stage` | `login-stage` |
 | `npm run build:stage` | `.env.staging` | `api-stage` | `login-stage` |
 | `npm run build` | `.env.production` | `api` | `login` |
 
-Override locally with `.env.development.local` (gitignored).
-
-```bash
-# optional — point at local game API
-echo 'REACT_APP_API_URL=http://localhost:8082' >> .env.development.local
-```
-
-Restart the dev server after changing env files. Dev console logs `[creator] environment` with resolved URLs.
-
-On `localhost`, OIDC always uses `dotv-creator-local` (even for `start:stage`) so the callback stays on your machine.
+Dev console logs `[creator] environment` with the resolved URLs.
 
 ## Local dev
 

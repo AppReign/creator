@@ -1,5 +1,7 @@
 /** Mirrors dotv `CharacterBasePart*` catalogs for the upload UI. */
 
+import { poseKeyToSlug } from "../utils/poseKeySlug";
+
 export const BASE_PART_TYPES = [
   "head",
   "body",
@@ -91,8 +93,6 @@ export function zIndexLayerForBasePart(
 ): string | undefined {
   return Z_INDEX_BY_LAYER_KEY[layerKey(partType, poseKey, layerSlug)];
 }
-
-import { poseKeyToSlug } from "../utils/poseKeySlug";
 
 /** Expected CDN filename (matches dotv `CharacterBasePartImagePathBuilder`). */
 export function buildBasePartFilename(

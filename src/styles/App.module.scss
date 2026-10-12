@@ -24,6 +24,14 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+.stage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
 .Selectors {
   display: flex;
   flex-direction: column;

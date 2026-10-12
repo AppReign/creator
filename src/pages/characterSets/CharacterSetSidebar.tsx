@@ -3,7 +3,6 @@ import { NavLink } from "react-router-dom";
 
 import CdnCheckProgress from "../../components/CdnCheckProgress";
 import CdnStatusBadge from "../../components/CdnStatusBadge";
-import { formatEquipSetLabel } from "../../utils/formatEquipSetLabel";
 import {
   baseSetCdnTitle,
   toCdnBadgeStatus

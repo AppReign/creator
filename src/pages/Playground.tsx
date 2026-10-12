@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import classnames from "classnames";
 
 import AssetsRenderer from "../components/AssetsRenderer";
+import CurrentlyEquipped from "../components/CurrentlyEquipped";
 import EquipmentSelector from "../components/EquipmentSelector";
 import { CharacterActions } from "../components/CharacterActions";
 import classes from "../styles/App.module.scss";
@@ -16,6 +17,7 @@ import {
   getEquipmentPartsForSlot,
   weaponOccupiesBothHands
 } from "../utils/equipmentPose";
+import { useEquipmentValidation } from "./equipmentSets/equipmentValidationContext";
 import { useLoadEquipmentFromUrlHash } from "../hooks/useLoadEquipmentFromUrlHash";
 import { useRandomizeCharacter } from "../hooks/useRandomizeCharacter";
 import { useEquipmentCatalog } from "../hooks/useEquipmentCatalog";
@@ -41,9 +43,24 @@ const Playground = () => {
     useState<EquipSlot>("helm");
   const [changing, setChanging] = useState<boolean>(false);
   const [characterSex, setCharacterSex] = useState<CharacterSex>("male");
+  const [highlightedEquipName, setHighlightedEquipName] = useState<string | null>(null);
 
+  const { getItemSexCdnStatus } = useEquipmentValidation();
   useLoadEquipmentFromUrlHash(setEquippedItems, setChanging, catalog);
-  const randomize = useRandomizeCharacter(setEquippedItems, setChanging, catalog);
+  const uploadedCatalog = useMemo(
+    () =>
+      catalog.filter((part) => {
+        const itemId = part.equipmentRegistryKey;
+        if (!itemId) return false;
+        return getItemSexCdnStatus(itemId, characterSex) === "ok";
+      }),
+    [catalog, characterSex, getItemSexCdnStatus]
+  );
+  const randomize = useRandomizeCharacter(
+    setEquippedItems,
+    setChanging,
+    uploadedCatalog
+  );
 
   const selectedPose = useMemo(
     () => derivePoseFromEquipment(equippedItems),
@@ -177,19 +194,28 @@ const Playground = () => {
         aria-hidden="true"
       />
       <div className={classes.App}>
-        <div
-          id="character"
-          className={classnames(characterClasses.Character, {
-            [characterClasses.Changing]: changing
-          })}
-        >
-          <AssetsRenderer
-            partsArray={[...baseCharacterAssets, ...displayedEquipmentParts]}
+        <div className={classes.stage}>
+          <CurrentlyEquipped
+            items={displayedEquipmentParts}
+            highlightedName={highlightedEquipName}
+            onHighlight={setHighlightedEquipName}
           />
+          <div
+            id="character"
+            className={classnames(characterClasses.Character, {
+              [characterClasses.Changing]: changing
+            })}
+          >
+            <AssetsRenderer
+              partsArray={[...baseCharacterAssets, ...displayedEquipmentParts]}
+              highlightedPartName={highlightedEquipName}
+            />
+          </div>
         </div>
         <div className={classes.Selectors}>
           <CharacterActions
             randomize={randomize}
+            randomizeDisabled={uploadedCatalog.length === 0}
             save={save}
             share={share}
             refresh={refresh}
@@ -207,6 +233,7 @@ const Playground = () => {
             equippedItems={equippedItems}
             equipItem={addEquipmentPart}
             unequipItem={removeEquipmentPart}
+            previewSex={characterSex}
           />
         </div>
       </div>
