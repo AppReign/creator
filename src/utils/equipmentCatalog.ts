@@ -1,6 +1,7 @@
 import type { CharacterSex, ConfigImage, ConfigPartEquipment, ItemEquip } from "../interfaces/Config";
 import type { EquipmentHandPose } from "../utils/equipmentPose";
 import { resolveEquipmentImagesForHandPose } from "../config/equipmentDisplay";
+import type { EquipmentZIndexContext } from "../layers/zIndexOverrides";
 import {
   buildEquipmentCdnUrl,
   type CreatorEquipmentItem
@@ -31,9 +32,16 @@ export function resolveEquipmentImagesWithCdn(
   sex: CharacterSex,
   cdnBaseUrl: string,
   equipped: ConfigPartEquipment[] = [],
-  cdnCacheBust?: string
+  cdnCacheBust?: string,
+  zIndexOverrides: Omit<EquipmentZIndexContext, "glovesEquipped"> = {}
 ): ConfigImage[] {
-  const images = resolveEquipmentImagesForHandPose(item, pose, sex, equipped);
+  const images = resolveEquipmentImagesForHandPose(
+    item,
+    pose,
+    sex,
+    equipped,
+    zIndexOverrides
+  );
   return attachCdnToConfigImages(images, creatorItem, sex, cdnBaseUrl, cdnCacheBust);
 }
 

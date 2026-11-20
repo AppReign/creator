@@ -15,7 +15,7 @@
 ## 2. Glossary
 
 - **Slot**: a named place gear can occupy. Equipment slots: `mainHand`, `offHand`, `helm`, `chest`, `pants`, `boots`. Vanity slots: `hair`, `facialHair`, `scar`, …
-- **Pose**: a body posture (e.g. `1h mainhand`, `2h`, `2h crossbow`). Determined by main-hand + off-hand items.
+- **Pose**: a body posture (e.g. `1h mainhand`, `2h mainhand`, `2h offhand crossbow`). Determined by main-hand + off-hand items.
 - **Layer**: a named z-order slot (e.g. `EQUIPMENT.HELM`, `BODY.CHEST.UNDER`). Resolves to a numeric `zIndex`.
 - **Item**: one inventory entity (one helmet, one hairstyle). Carries all its sprite data.
 - **Image row**: one drawable PNG entry (filename + layer). Many image rows compose one item per (sex, pose).
@@ -147,8 +147,10 @@ These are JSON so adding capability ≠ code change.
   { "id": "all",               "label": "Any pose",        "kind": "wildcard" },
   { "id": "1h mainhand",           "label": "1H main hand",   "kind": "single", "hand": "mainhand" },
   { "id": "1h offhand",            "label": "1H off hand",    "kind": "single", "hand": "offhand" },
-  { "id": "2h",                    "label": "2H",             "kind": "two-handed" },
-  { "id": "2h crossbow",           "label": "2H crossbow",    "kind": "two-handed" },
+  { "id": "2h mainhand",           "label": "2H main hand",   "kind": "single", "hand": "mainhand" },
+  { "id": "2h offhand",            "label": "2H off hand",    "kind": "single", "hand": "offhand" },
+  { "id": "2h mainhand crossbow",  "label": "2H crossbow MH", "kind": "single", "hand": "mainhand" },
+  { "id": "2h offhand crossbow",   "label": "2H crossbow OH", "kind": "single", "hand": "offhand" },
   { "id": "1h mainhand crossbow",  "label": "1H crossbow MH", "kind": "single", "hand": "mainhand" },
   { "id": "1h offhand crossbow",   "label": "1H crossbow OH", "kind": "single", "hand": "offhand" },
   { "id": "throwing mainhand",     "label": "Throw MH",       "kind": "single", "hand": "mainhand" },
@@ -189,7 +191,7 @@ This is the part that pays off when we have thousands of items.
 3. **Pose references**: every pose key exists in `poses.json`.
 4. **Slot references**: `equipSlot`/`vanitySlot` exists in `slots.json`.
 5. **File existence**: every `filename` resolves to an actual PNG in `public/character_parts/`.
-6. **Required poses per slot**: if `equipSlot === "chest"`, items must define **at least** `[all, 1h mainhand, 1h offhand, 2h, 2h crossbow, 1h mainhand crossbow, 1h offhand crossbow, throwing mainhand, throwing offhand]` for each declared sex (rules per slot live in `slots.json`; see `FULL_POSE_KEYS` in `characterPoseCatalog.ts`).
+6. **Required poses per slot**: if `equipSlot === "chest"`, items must define **at least** `[all, 1h mainhand, 1h offhand, 2h mainhand, 2h offhand, 2h mainhand crossbow, 2h offhand crossbow, 1h mainhand crossbow, 1h offhand crossbow, throwing mainhand, throwing offhand]` for each declared sex (rules per slot live in `slots.json`; see `FULL_POSE_KEYS` in `characterPoseCatalog.ts`).
 7. **Default pose fallback**: items without pose-specific art default to `all`. Validator allows that explicitly so missing poses **only** fail loudly when the slot requires them.
 8. **No duplicate ids** across the equipment + vanity pools.
 9. **No layer collisions** within a single item (two image rows on the same `(sex, pose, layer)`).

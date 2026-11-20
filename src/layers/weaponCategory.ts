@@ -13,6 +13,12 @@ const SHIELD_TYPES = new Set([
   "tower-shield"
 ]);
 
+const TWO_HANDED_MELEE_POSES = new Set<Pose>(["2h mainhand", "2h offhand"]);
+const TWO_HANDED_CROSSBOW_POSES = new Set<Pose>([
+  "2h mainhand crossbow",
+  "2h offhand crossbow"
+]);
+
 /**
  * Weapon stacking category. Hand weapons use {@code poseKey=all} only; category comes from
  * {@code equipType} and {@code twoHanded}. Chest/gloves may still pass stance pose keys.
@@ -30,13 +36,13 @@ export function weaponCategory(
   }
 
   if (type === "crossbow") {
-    if (twoHanded || (!useItemFlagsOnly && poseKey === "2h crossbow")) {
+    if (twoHanded || (!useItemFlagsOnly && TWO_HANDED_CROSSBOW_POSES.has(poseKey))) {
       return "crossbow-2h";
     }
     return "crossbow-1h";
   }
 
-  if (twoHanded || (!useItemFlagsOnly && (poseKey === "2h" || poseKey === "2h crossbow"))) {
+  if (twoHanded || (!useItemFlagsOnly && TWO_HANDED_MELEE_POSES.has(poseKey))) {
     return "2h";
   }
 

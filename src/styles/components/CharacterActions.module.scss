@@ -1,13 +1,19 @@
 .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   margin-bottom: 15px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .action {
   cursor: pointer;
   border: 2px solid transparent;
   background: #eaeaea;
+  color: #222;
   margin: 4px;
   padding: 8px 12px;
   font: inherit;
@@ -62,4 +68,30 @@
   white-space: normal;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   pointer-events: none;
+}
+
+.checkAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: #eaeaea;
+  color: #222;
+  margin: 4px;
+  padding: 8px 12px;
+  font: inherit;
+  border-radius: 4px;
+  user-select: none;
+
+  &:hover,
+  &:focus-within {
+    background: #ddd;
+    border-color: #999;
+  }
+
+  input {
+    margin: 0;
+    cursor: pointer;
+  }
 }

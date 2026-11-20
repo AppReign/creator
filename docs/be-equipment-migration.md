@@ -7,6 +7,19 @@ Equipment is loaded exclusively via:
 
 There is no local equipment JSON/TS in this repo anymore.
 
+## Pose keys (chest / gloves / base arms)
+
+Two-handed stances use **side-specific** pose keys (aligned with dotv `EquipmentCharacterDisplayPoseCatalog` and `CharacterBasePartPoseCatalog`):
+
+- `2h mainhand`, `2h offhand`
+- `2h mainhand crossbow`, `2h offhand crossbow`
+
+**Gloves** use stance keys only (no `all`) — same idea as base `mainHand` / `offHand` parts. **Chest** still includes `all` for the torso layer plus stance overlays.
+
+Legacy shared keys `2h` and `2h crossbow` are **removed**. Delete any CDN assets uploaded under the old slugs (`…-2h-base-…`, `male-white-2h-under.png`, etc.) and re-upload under the new keys.
+
+See [`characterPoseCatalog.ts`](../src/config/characterPoseCatalog.ts) and dotv `docs/equipment-character-display-upload.md`.
+
 ## Adding a new item
 
 1. Upload sprites via `/upload`.

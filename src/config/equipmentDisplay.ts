@@ -15,12 +15,16 @@ import {
   type ChestHandSide
 } from "../layers/resolveEquipmentZIndex";
 import {
+  equipmentZIndexContextFromEquipped,
+  type EquipmentZIndexContext
+} from "../layers/zIndexOverrides";
+import {
   deriveChestWeaponStances,
   handPoseBucketOf,
   EquipmentHandPose
 } from "../utils/equipmentPose";
 
-/** Neutral idle pose for catalog previews (gloves z-index is hand-pose dependent). */
+/** Neutral idle pose for catalog previews (gloves resolve from stance buckets). */
 const CATALOG_PREVIEW_HAND_POSE: EquipmentHandPose = {
   mainHandPose: "1h mainhand",
   offHandPose: "1h offhand"
@@ -31,7 +35,6 @@ const ALL_ONLY_SLOTS: readonly EquipSlot[] = [
   "helm",
   "boots",
   "pants",
-  "gloves",
   "main-hand",
   "off-hand"
 ];
@@ -97,7 +100,7 @@ function toConfigImage(
   item: ItemEquip,
   poseKey: Pose,
   row: CharacterDisplayImageRow,
-  handPose?: EquipmentHandPose,
+  zIndexContext?: EquipmentZIndexContext,
   chestHandSide?: ChestHandSide
 ): { filename: string; zIndex: number } | null {
   if (
@@ -113,9 +116,6 @@ function toConfigImage(
     return null;
   }
 
-  const resolvedHandPose =
-    item.equipSlot === "gloves" ? handPose ?? CATALOG_PREVIEW_HAND_POSE : handPose;
-
   return {
     filename: row.filename,
     zIndex: resolveEquipmentZIndex({
@@ -124,8 +124,8 @@ function toConfigImage(
       layer: row.layer,
       equipType: item.equipType,
       twoHanded: item.twoHanded,
-      handPose: resolvedHandPose,
-      chestHandSide
+      chestHandSide,
+      zIndexContext
     })
   };
 }
@@ -134,9 +134,9 @@ function pushBucketLayers(
   item: ItemEquip,
   bucketPoseKey: Pose,
   layers: CharacterDisplayImageRow[] | undefined,
-  handPose: EquipmentHandPose | undefined,
   seen: Set<string>,
   out: { filename: string; zIndex: number }[],
+  zIndexContext?: EquipmentZIndexContext,
   chestHandSide?: ChestHandSide
 ): void {
   if (!layers?.length) return;
@@ -145,7 +145,7 @@ function pushBucketLayers(
       item,
       bucketPoseKey,
       row,
-      handPose,
+      zIndexContext,
       chestHandSide
     );
     if (!image) continue;
@@ -166,17 +166,17 @@ function pushChestWeaponStanceLayers(
   weaponStancePose: Pose,
   buckets: Partial<Record<Pose, CharacterDisplayImageRow[]>>,
   def: Pose,
-  handPose: EquipmentHandPose,
   seen: Set<string>,
-  out: { filename: string; zIndex: number }[]
+  out: { filename: string; zIndex: number }[],
+  zIndexContext?: EquipmentZIndexContext
 ): void {
   pushBucketLayers(
     item,
     weaponStancePose,
     buckets[weaponStancePose] ?? buckets[def],
-    handPose,
     seen,
     out,
+    zIndexContext,
     chestHandSideForWeaponStance(weaponStancePose)
   );
 }
@@ -184,29 +184,53 @@ function pushChestWeaponStanceLayers(
 function allBucketImages(
   item: ItemEquip,
   buckets: Partial<Record<Pose, CharacterDisplayImageRow[]>>,
-  handPose?: EquipmentHandPose
+  zIndexContext?: EquipmentZIndexContext
 ): ConfigImage[] {
   const seen = new Set<string>();
   const out: { filename: string; zIndex: number }[] = [];
-  pushBucketLayers(item, "all", buckets.all, handPose, seen, out);
+  pushBucketLayers(item, "all", buckets.all, seen, out, zIndexContext);
   if (out.length) return out;
   const firstEntry = Object.entries(buckets).find(([, v]) => v?.length);
   if (!firstEntry) return [];
   const [poseKey, rows] = firstEntry as [Pose, CharacterDisplayImageRow[]];
-  pushBucketLayers(item, poseKey, rows, handPose, seen, out);
+  pushBucketLayers(item, poseKey, rows, seen, out, zIndexContext);
+  return out;
+}
+
+/**
+ * Gloves follow base arms: load over/under rows from the current main- and off-hand
+ * stance buckets (no {@code all}).
+ */
+function resolveGlovesImagesForHandPose(
+  item: ItemEquip,
+  buckets: Partial<Record<Pose, CharacterDisplayImageRow[]>>,
+  handPose: EquipmentHandPose,
+  zIndexContext?: EquipmentZIndexContext
+): ConfigImage[] {
+  const seen = new Set<string>();
+  const out: { filename: string; zIndex: number }[] = [];
+  const stances =
+    handPose.mainHandPose === handPose.offHandPose
+      ? [handPose.mainHandPose]
+      : [handPose.mainHandPose, handPose.offHandPose];
+  for (const stance of stances) {
+    pushBucketLayers(item, stance, buckets[stance], seen, out, zIndexContext);
+  }
   return out;
 }
 
 /**
  * Resolves drawable rows for the current hand pose.
  * — **Chest** composes `all` plus main- and off-hand stance buckets (weapon or idle).
- * — **Helm / pants / boots / gloves / main-hand / off-hand** use only the `all` bucket.
+ * — **Gloves** load main- and off-hand stance buckets only (like base arms).
+ * — **Helm / pants / boots / main-hand / off-hand** use only the `all` bucket.
  */
 export function resolveEquipmentImagesForHandPose(
   item: ItemEquip,
   pose: EquipmentHandPose,
   sex: CharacterSex,
-  equipped: ConfigPartEquipment[] = []
+  equipped: ConfigPartEquipment[] = [],
+  zIndexOverrides: Omit<EquipmentZIndexContext, "glovesEquipped"> = {}
 ): ConfigImage[] {
   if (!item.characterDisplay) {
     return [];
@@ -214,10 +238,17 @@ export function resolveEquipmentImagesForHandPose(
   const withDisplay = item as ItemEquip & { characterDisplay: CharacterDisplay };
   const buckets = getPoseBuckets(withDisplay, sex);
   const slot = item.equipSlot;
+  const zIndexContext = equipmentZIndexContextFromEquipped(
+    equipped,
+    zIndexOverrides
+  );
+
+  if (slot === "gloves") {
+    return resolveGlovesImagesForHandPose(item, buckets, pose, zIndexContext);
+  }
 
   if (ALL_ONLY_SLOTS.includes(slot)) {
-    const handPose = slot === "gloves" ? pose : undefined;
-    return allBucketImages(item, buckets, handPose);
+    return allBucketImages(item, buckets, zIndexContext);
   }
 
   const maleBuckets = getMalePoseBuckets(withDisplay);
@@ -228,9 +259,17 @@ export function resolveEquipmentImagesForHandPose(
   const seen = new Set<string>();
   const out: { filename: string; zIndex: number }[] = [];
 
-  pushBucketLayers(item, "all", buckets.all, pose, seen, out);
+  pushBucketLayers(item, "all", buckets.all, seen, out, zIndexContext);
   for (const weaponStance of deriveChestWeaponStances(equipped)) {
-    pushChestWeaponStanceLayers(item, weaponStance, buckets, def, pose, seen, out);
+    pushChestWeaponStanceLayers(
+      item,
+      weaponStance,
+      buckets,
+      def,
+      seen,
+      out,
+      zIndexContext
+    );
   }
   return out;
 }
@@ -256,6 +295,10 @@ function deriveCatalogPose(
   if (isHandWeaponSlot(item.equipSlot)) {
     return "all";
   }
+  // One item, many stance buckets — listing filter always includes gloves (see partMatchesPose).
+  if (item.equipSlot === "gloves") {
+    return "1h mainhand";
+  }
   return deriveCatalogPoseFromBuckets(getMalePoseBuckets(item));
 }
 
@@ -264,9 +307,12 @@ function imagesForCatalogEntry(
 ): ConfigImage[] {
   const buckets = getMalePoseBuckets(item);
 
+  if (item.equipSlot === "gloves") {
+    return resolveGlovesImagesForHandPose(item, buckets, CATALOG_PREVIEW_HAND_POSE);
+  }
+
   if (ALL_ONLY_SLOTS.includes(item.equipSlot)) {
-    const handPose = item.equipSlot === "gloves" ? CATALOG_PREVIEW_HAND_POSE : undefined;
-    return allBucketImages(item, buckets, handPose);
+    return allBucketImages(item, buckets);
   }
 
   if (isHandPoseKeyedBuckets(buckets)) {

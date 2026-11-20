@@ -10,20 +10,14 @@ export type EquipmentHandPose = {
 const DEFAULT_MAIN_HAND_EMPTY: Pose = "1h mainhand";
 const DEFAULT_OFF_HAND_EMPTY: Pose = "1h offhand";
 
-export type HandPoseBucket = "mainhand" | "offhand" | "both";
+export type HandPoseBucket = "mainhand" | "offhand";
 export function handPoseBucketOf(p: Pose): HandPoseBucket {
-  if (p === "2h" || p === "2h crossbow") return "both";
-  if (
-    p === "1h mainhand" ||
-    p === "1h mainhand crossbow" ||
-    p === "throwing mainhand"
-  ) {
-    return "mainhand";
-  }
   if (
     p === "1h offhand" ||
     p === "1h offhand crossbow" ||
-    p === "throwing offhand"
+    p === "throwing offhand" ||
+    p === "2h offhand" ||
+    p === "2h offhand crossbow"
   ) {
     return "offhand";
   }
@@ -31,11 +25,27 @@ export function handPoseBucketOf(p: Pose): HandPoseBucket {
 }
 
 export function isTwoHandedWeaponPose(pose: Pose): boolean {
-  return pose === "2h" || pose === "2h crossbow";
+  return (
+    pose === "2h mainhand" ||
+    pose === "2h offhand" ||
+    pose === "2h mainhand crossbow" ||
+    pose === "2h offhand crossbow"
+  );
 }
 
 export function complementaryOneHandIdle(p: Pose): Pose {
   return p === "1h mainhand" ? "1h offhand" : "1h mainhand";
+}
+
+export function complementaryTwoHandedOffhand(mainHandPose: Pose): Pose {
+  switch (mainHandPose) {
+    case "2h mainhand":
+      return "2h offhand";
+    case "2h mainhand crossbow":
+      return "2h offhand crossbow";
+    default:
+      throw new Error(`No 2h off-hand complement for pose=${mainHandPose}`);
+  }
 }
 
 /** Chest weapon-stance overlays — one per hand slot (weapon stance or default idle). */
@@ -44,10 +54,9 @@ export function deriveChestWeaponStances(
 ): Pose[] {
   const handPose = derivePoseFromEquipment(equipped);
   const hasMain = equipped.some((p) => p.equipSlot === "main-hand");
-  const hasOff = equipped.some((p) => p.equipSlot === "off-hand");
 
   const mainStance = hasMain ? handPose.mainHandPose : DEFAULT_MAIN_HAND_EMPTY;
-  const offStance = hasOff ? handPose.offHandPose : DEFAULT_OFF_HAND_EMPTY;
+  const offStance = handPose.offHandPose;
 
   if (mainStance === offStance) {
     return [mainStance];
@@ -66,7 +75,7 @@ export function weaponOccupiesBothHands(part: ConfigPartEquipment): boolean {
 
 /**
  * Body/arm stance for a hand-slot item. Hand weapons store catalog {@code pose=all}; map that
- * to a real stance key ({@code 1h mainhand}, {@code 2h}, …) for base parts and chest overlays.
+ * to a real stance key ({@code 1h mainhand}, {@code 2h mainhand}, …) for base parts and chest overlays.
  */
 export function bodyStancePoseForHandItem(part: ConfigPartEquipment): Pose {
   if (part.equipSlot !== "main-hand" && part.equipSlot !== "off-hand") {
@@ -87,9 +96,9 @@ export function bodyStancePoseForHandItem(part: ConfigPartEquipment): Pose {
   if (part.equipSlot === "main-hand") {
     switch (category) {
       case "2h":
-        return "2h";
+        return "2h mainhand";
       case "crossbow-2h":
-        return "2h crossbow";
+        return "2h mainhand crossbow";
       case "crossbow-1h":
         return "1h mainhand crossbow";
       case "default-1h":
@@ -101,9 +110,9 @@ export function bodyStancePoseForHandItem(part: ConfigPartEquipment): Pose {
 
   switch (category) {
     case "2h":
-      return "2h";
+      return "2h offhand";
     case "crossbow-2h":
-      return "2h crossbow";
+      return "2h offhand crossbow";
     case "crossbow-1h":
       return "1h offhand crossbow";
     case "shield":
@@ -137,7 +146,7 @@ export function derivePoseFromEquipment(
     offHand == null &&
     weaponOccupiesBothHands(mainHand)
   ) {
-    offHandPose = bodyStancePoseForHandItem(mainHand);
+    offHandPose = complementaryTwoHandedOffhand(mainHandPose);
   }
 
   return { mainHandPose, offHandPose };
@@ -155,10 +164,6 @@ export function deriveBaseArmBundlePoses(
   const sm = handPoseBucketOf(mainHandPose);
   const so = handPoseBucketOf(offHandPose);
 
-  if (sm === "both" || so === "both") {
-    return { mainHandPose, offHandPose };
-  }
-
   if (sm === so) {
     return {
       mainHandPose,
@@ -171,15 +176,16 @@ export function deriveBaseArmBundlePoses(
 
 /**
  * Whether `p` should appear in the slot list for the current hand-derived pose.
- * Hand slots list every catalog option in that slot (native catalog `pose` may differ from the
- * default derived pose when nothing is equipped). Armor uses `"all"` or stance-specific poses.
+ * Hand slots and gloves list every catalog option in that slot (native catalog `pose` may
+ * differ from the default derived pose when nothing is equipped). Other armor uses `"all"`
+ * or stance-specific poses.
  */
 export function partMatchesPose(
   p: ConfigPartEquipment,
   slot: EquipSlot,
   pose: EquipmentHandPose
 ): boolean {
-  if (slot === "main-hand" || slot === "off-hand") {
+  if (slot === "main-hand" || slot === "off-hand" || slot === "gloves") {
     return true;
   }
   if (p.pose === "all") return true;

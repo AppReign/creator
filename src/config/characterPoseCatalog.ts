@@ -1,23 +1,31 @@
 import type { EquipSlot } from "./equipSlots";
 
-/** All weapon-stance pose keys (chest, gloves, etc.) — matches server `FULL_POSE_KEYS`. */
-export const FULL_POSE_KEYS = [
-  "all",
+/** Stance pose keys shared by chest overlays, gloves, and base arms (no {@code all}). */
+export const STANCE_POSE_KEYS = [
   "1h mainhand",
   "1h offhand",
-  "2h",
-  "2h crossbow",
+  "2h mainhand",
+  "2h offhand",
+  "2h mainhand crossbow",
+  "2h offhand crossbow",
   "1h mainhand crossbow",
   "1h offhand crossbow",
   "throwing mainhand",
   "throwing offhand"
 ] as const;
 
+/**
+ * All characterDisplay / base-part pose keys including the {@code all} wildcard.
+ * Matches server `FULL_POSE_KEYS` for chest; gloves use {@link STANCE_POSE_KEYS} only.
+ */
+export const FULL_POSE_KEYS = ["all", ...STANCE_POSE_KEYS] as const;
+
 const ALL_ONLY_POSE_KEYS = ["all"] as const;
 
 const POSE_KEYS_BY_SLOT: Partial<Record<EquipSlot, readonly string[]>> = {
   chest: FULL_POSE_KEYS,
-  gloves: FULL_POSE_KEYS,
+  /** Like base arms: one sprite set per weapon stance — no {@code all} bucket. */
+  gloves: STANCE_POSE_KEYS,
   helm: ALL_ONLY_POSE_KEYS,
   pants: ALL_ONLY_POSE_KEYS,
   boots: ALL_ONLY_POSE_KEYS,

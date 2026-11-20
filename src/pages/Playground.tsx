@@ -44,6 +44,8 @@ const Playground = () => {
   const [changing, setChanging] = useState<boolean>(false);
   const [characterSex, setCharacterSex] = useState<CharacterSex>("male");
   const [highlightedEquipName, setHighlightedEquipName] = useState<string | null>(null);
+  const [tuckChestIntoPants, setTuckChestIntoPants] = useState(false);
+  const [tuckPantsIntoBoots, setTuckPantsIntoBoots] = useState(false);
 
   const { getItemSexCdnStatus } = useEquipmentValidation();
   useLoadEquipmentFromUrlHash(setEquippedItems, setChanging, catalog);
@@ -87,6 +89,7 @@ const Playground = () => {
   );
 
   const displayedEquipmentParts = useMemo((): ConfigPartEquipment[] => {
+    const zIndexOverrides = { tuckChestIntoPants, tuckPantsIntoBoots };
     return equippedItems.map((part) => {
       const key = part.equipmentRegistryKey;
       if (!key || !itemEquipById[key] || !itemById[key]) {
@@ -99,7 +102,8 @@ const Playground = () => {
         characterSex,
         cdnBaseUrl,
         equippedItems,
-        cdnCacheBust
+        cdnCacheBust,
+        zIndexOverrides
       );
       return {
         ...part,
@@ -113,7 +117,9 @@ const Playground = () => {
     itemEquipById,
     itemById,
     cdnBaseUrl,
-    cdnCacheBust
+    cdnCacheBust,
+    tuckChestIntoPants,
+    tuckPantsIntoBoots
   ]);
 
   const removeEquipmentPart = (removedPart: ConfigPartEquipment) => {
@@ -221,6 +227,10 @@ const Playground = () => {
             refresh={refresh}
             characterSex={characterSex}
             onCharacterSexChange={setCharacterSex}
+            tuckChestIntoPants={tuckChestIntoPants}
+            onTuckChestIntoPantsChange={setTuckChestIntoPants}
+            tuckPantsIntoBoots={tuckPantsIntoBoots}
+            onTuckPantsIntoBootsChange={setTuckPantsIntoBoots}
           />
           <EquipSlotSelector
             selectedEquipmentSlot={selectedEquipmentSlot}

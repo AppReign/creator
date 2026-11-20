@@ -12,7 +12,7 @@ alwaysApply: false
 
 ## Body / base-arm stance: real pose keys
 
-Base character parts (`parts.mainHand`, `parts.offHand`) use stance keys such as `1h mainhand`, `1h offhand`, `2h`, `2h crossbow`, etc. **There is no `mainHand["all"]` arm bucket.**
+Base character parts (`parts.mainHand`, `parts.offHand`) use stance keys such as `1h mainhand`, `1h offhand`, `2h mainhand`, `2h offhand crossbow`, etc. **There is no `mainHand["all"]` arm bucket.**
 
 `derivePoseFromEquipment` must map equipped hand items through **`bodyStancePoseForHandItem()`** — never pass catalog `pose: "all"` through as the body stance.
 
@@ -21,7 +21,7 @@ Base character parts (`parts.mainHand`, `parts.offHand`) use stance keys such as
 | Equipped item | Catalog pose | Body mainHandPose | Body offHandPose (empty off) |
 |---------------|--------------|-------------------|----------------------------|
 | 1H rod/sword main | `all` | `1h mainhand` | `1h offhand` |
-| 2H polearm main | `all` + `twoHanded` | `2h` | `2h` |
+| 2H polearm main | `all` + `twoHanded` | `2h mainhand` | `2h offhand` |
 | Shield off | `all` | (from main or default) | `1h offhand` |
 
 Changing this mapping requires updating **`equipmentPose.test.ts`** and **`basePartsFromApi.test.ts`**, and **user confirmation** per `unit-tests-guard.mdc`.

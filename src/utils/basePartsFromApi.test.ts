@@ -18,9 +18,9 @@ function mockMaleWhiteVariant(): CharacterBasePartsVariant {
           { filename: "male-white-1h-mainhand-under.png", layer: "BODY_ONEHLARM" },
           { filename: "male-white-1h-mainhand-over.png", layer: "BODY_ONEHLFINGERS" }
         ],
-        "2h": [
-          { filename: "male-white-2h-under.png", layer: "BODY_TWOHLARM" },
-          { filename: "male-white-2h-over.png", layer: "BODY_TWOHLFINGERS" }
+        "2h mainhand": [
+          { filename: "male-white-2h-mainhand-under.png", layer: "BODY_TWOHLARM" },
+          { filename: "male-white-2h-mainhand-over.png", layer: "BODY_TWOHLFINGERS" }
         ]
       },
       offHand: {
@@ -28,7 +28,7 @@ function mockMaleWhiteVariant(): CharacterBasePartsVariant {
           { filename: "male-white-1h-offhand-under.png", layer: "BODY_ONEHRARM" },
           { filename: "male-white-1h-offhand-over.png", layer: "BODY_ONEHRFINGERS" }
         ],
-        "2h": [{ filename: "male-white-2h-offhand-under.png", layer: "BODY_TWOHRARM" }]
+        "2h offhand": [{ filename: "male-white-2h-offhand-under.png", layer: "BODY_TWOHRARM" }]
       }
     }
   };

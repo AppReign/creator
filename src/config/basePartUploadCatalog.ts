@@ -1,4 +1,5 @@
 /** Mirrors dotv `CharacterBasePart*` catalogs for the upload UI. */
+import { poseKeyToSlug } from "../utils/poseKeySlug";
 
 import { poseKeyToSlug } from "../utils/poseKeySlug";
 
@@ -19,16 +20,16 @@ const ALL_ONLY_POSE = ["all"] as const;
 
 const MAIN_HAND_POSE_KEYS = [
   "1h mainhand",
-  "2h",
-  "2h crossbow",
+  "2h mainhand",
+  "2h mainhand crossbow",
   "1h mainhand crossbow",
   "throwing mainhand"
 ] as const;
 
 const OFF_HAND_POSE_KEYS = [
   "1h offhand",
-  "2h",
-  "2h crossbow",
+  "2h offhand",
+  "2h offhand crossbow",
   "1h offhand crossbow",
   "throwing offhand"
 ] as const;
@@ -41,13 +42,13 @@ const Z_INDEX_BY_LAYER_KEY: Record<string, string> = {
   "mainHand|1h mainhand|over": "BODY_ONEHLFINGERS",
   "offHand|1h offhand|under": "BODY_ONEHRARM",
   "offHand|1h offhand|over": "BODY_ONEHRFINGERS",
-  "mainHand|2h|under": "BODY_TWOHLARM",
-  "mainHand|2h|over": "BODY_TWOHLFINGERS",
-  "offHand|2h|under": "BODY_TWOHRARM",
-  "offHand|2h|over": "BODY_TWOHRFINGERS",
-  "mainHand|2h crossbow|under": "BODY_TWOHCBLARM",
-  "mainHand|2h crossbow|over": "BODY_TWOHCBLFINGERS",
-  "offHand|2h crossbow|under": "BODY_TWOHCBRARM",
+  "mainHand|2h mainhand|under": "BODY_TWOHLARM",
+  "mainHand|2h mainhand|over": "BODY_TWOHLFINGERS",
+  "offHand|2h offhand|under": "BODY_TWOHRARM",
+  "offHand|2h offhand|over": "BODY_TWOHRFINGERS",
+  "mainHand|2h mainhand crossbow|under": "BODY_TWOHCBLARM",
+  "mainHand|2h mainhand crossbow|over": "BODY_TWOHCBLFINGERS",
+  "offHand|2h offhand crossbow|under": "BODY_TWOHCBRARM",
   "mainHand|1h mainhand crossbow|under": "BODY_ONEHCBLARM",
   "offHand|1h offhand crossbow|under": "BODY_ONEHCBRARM",
   "mainHand|throwing mainhand|under": "BODY_ARMLTHROWING",

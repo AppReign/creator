@@ -22,9 +22,9 @@ describe("bodyStancePoseForHandItem", () => {
   it.each([
     ["main-hand", "rod", false, "1h mainhand"],
     ["main-hand", "sword", false, "1h mainhand"],
-    ["main-hand", "polearm", true, "2h"],
+    ["main-hand", "polearm", true, "2h mainhand"],
     ["main-hand", "crossbow", false, "1h mainhand crossbow"],
-    ["main-hand", "crossbow", true, "2h crossbow"],
+    ["main-hand", "crossbow", true, "2h mainhand crossbow"],
     ["main-hand", "darts", false, "throwing mainhand"],
     ["off-hand", "buckler-shield", false, "1h offhand"],
     ["off-hand", "crossbow", false, "1h offhand crossbow"],
@@ -65,10 +65,10 @@ describe("bodyStancePoseForHandItem", () => {
           name: "legacy",
           equipSlot: "main-hand",
           equipType: "sword",
-          pose: "2h"
+          pose: "2h mainhand"
         })
       )
-    ).toBe("2h");
+    ).toBe("2h mainhand");
   });
 });
 
@@ -98,7 +98,7 @@ describe("derivePoseFromEquipment", () => {
     expect(offHandPose).not.toBe("all");
   });
 
-  it("maps twoHanded main-hand weapon to 2h on both hands when off-hand empty", () => {
+  it("maps twoHanded main-hand weapon to side-specific 2h poses when off-hand empty", () => {
     const polearm = handItem({
       name: "Great Pole",
       equipSlot: "main-hand",
@@ -107,8 +107,8 @@ describe("derivePoseFromEquipment", () => {
     });
 
     expect(derivePoseFromEquipment([polearm])).toEqual({
-      mainHandPose: "2h",
-      offHandPose: "2h"
+      mainHandPose: "2h mainhand",
+      offHandPose: "2h offhand"
     });
   });
 
@@ -152,7 +152,7 @@ describe("deriveBaseArmBundlePoses", () => {
     });
   });
 
-  it("dedupes identical 2h bundle when both hands share 2h stance", () => {
+  it("keeps separate 2h mainhand and 2h offhand bundles when both hands share 2h stance", () => {
     const polearm = handItem({
       name: "Pole",
       equipSlot: "main-hand",
@@ -161,10 +161,13 @@ describe("deriveBaseArmBundlePoses", () => {
     });
     const handPose = derivePoseFromEquipment([polearm]);
 
-    expect(handPose).toEqual({ mainHandPose: "2h", offHandPose: "2h" });
+    expect(handPose).toEqual({
+      mainHandPose: "2h mainhand",
+      offHandPose: "2h offhand"
+    });
     expect(deriveBaseArmBundlePoses(handPose)).toEqual({
-      mainHandPose: "2h",
-      offHandPose: "2h"
+      mainHandPose: "2h mainhand",
+      offHandPose: "2h offhand"
     });
   });
 
@@ -211,14 +214,30 @@ describe("deriveChestWeaponStances", () => {
     ]);
   });
 
-  it("includes idle off-hand overlay when only main-hand has a 2h weapon", () => {
+  it("pairs 2h mainhand and 2h offhand chest overlays when only main-hand has a 2h weapon", () => {
     const polearm = handItem({
       name: "Pole",
       equipSlot: "main-hand",
       equipType: "polearm",
       twoHanded: true
     });
-    expect(deriveChestWeaponStances([polearm])).toEqual(["2h", "1h offhand"]);
+    expect(deriveChestWeaponStances([polearm])).toEqual([
+      "2h mainhand",
+      "2h offhand"
+    ]);
+  });
+
+  it("pairs 2h crossbow stances when only main-hand has a 2h crossbow", () => {
+    const crossbow = handItem({
+      name: "Crossbow",
+      equipSlot: "main-hand",
+      equipType: "crossbow",
+      twoHanded: true
+    });
+    expect(deriveChestWeaponStances([crossbow])).toEqual([
+      "2h mainhand crossbow",
+      "2h offhand crossbow"
+    ]);
   });
 
   it("returns default idle stances when no hand weapons are equipped", () => {

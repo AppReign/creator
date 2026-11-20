@@ -25,10 +25,10 @@ export type CharacterDisplayAllOnly = {
   };
 };
 
-/** `equipSlot: "chest"`: every `Pose` bucket required on `male`. */
+/** `equipSlot: "chest"`: stance pose buckets on `male`. */
 export type CharacterDisplayChest = {
   perSex: {
-    male: Record<Pose, CharacterDisplayImageRow[]>;
+    male: Partial<Record<Pose, CharacterDisplayImageRow[]>>;
     female?: Partial<Record<Pose, CharacterDisplayImageRow[]>>;
   };
 };

@@ -9,7 +9,7 @@ const ARMOR_SLOTS: EquipSlot[] = ["helm", "chest", "pants", "boots"];
 
 /**
  * Per-slot probability ∈ [0, 1] of leaving that slot empty.
- * (Main-hand 2h / 2h crossbow still forces an empty off-hand.)
+ * (Main-hand 2h mainhand / 2h mainhand crossbow still forces an empty off-hand.)
  */
 export const DEFAULT_UNEQUIP_CHANCE = 0.25;
 

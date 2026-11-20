@@ -17,7 +17,7 @@ describe("resolveEquipmentZIndex", () => {
     expect(
       resolveEquipmentZIndex({
         equipSlot: "chest",
-        poseKey: "2h",
+        poseKey: "2h mainhand",
         layer: "base"
       })
     ).toBe(zIndexValue(EQUIPMENT.CHEST.MAINHAND.TWO_HANDED));
@@ -35,6 +35,12 @@ describe("resolveEquipmentZIndex", () => {
     );
     expect(chestLayerForHandBucket("offhand", "throwing offhand")).toBe(
       EQUIPMENT.CHEST.OFFHAND.THROWING
+    );
+    expect(chestLayerForHandBucket("mainhand", "2h mainhand")).toBe(
+      EQUIPMENT.CHEST.MAINHAND.TWO_HANDED
+    );
+    expect(chestLayerForHandBucket("offhand", "2h offhand")).toBe(
+      EQUIPMENT.CHEST.OFFHAND.TWO_HANDED
     );
   });
 
@@ -98,14 +104,14 @@ describe("resolveEquipmentZIndex", () => {
     ).toBe(zIndexValue(EQUIPMENT.OFFHAND.ONE_HANDED.SHIELD.UNDER));
   });
 
-  it("resolves boots base only", () => {
+  it("resolves boots base to tucked (under pant legs) by default", () => {
     expect(
       resolveEquipmentZIndex({
         equipSlot: "boots",
         poseKey: "all",
         layer: "base"
       })
-    ).toBe(zIndexValue(EQUIPMENT.BOOTS.UNTUCKED));
+    ).toBe(zIndexValue(EQUIPMENT.BOOTS.TUCKED));
   });
 
   it("rejects non-base layer on chest", () => {
