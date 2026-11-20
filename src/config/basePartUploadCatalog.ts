@@ -1,8 +1,6 @@
 /** Mirrors dotv `CharacterBasePart*` catalogs for the upload UI. */
 import { poseKeyToSlug } from "../utils/poseKeySlug";
 
-import { poseKeyToSlug } from "../utils/poseKeySlug";
-
 export const BASE_PART_TYPES = [
   "head",
   "body",
