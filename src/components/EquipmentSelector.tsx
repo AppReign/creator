@@ -1,7 +1,7 @@
 import React from "react";
 import { EquipmentList } from "../components/EquipmentList";
 import CdnCheckProgress from "../components/CdnCheckProgress";
-import { ConfigPartEquipment } from "../interfaces/Config";
+import { CharacterSex, ConfigPartEquipment } from "../interfaces/Config";
 import { useEquipmentValidation } from "../pages/equipmentSets/equipmentValidationContext";
 import classes from "../styles/components/EquipmentSelector.module.scss";
 
@@ -11,6 +11,7 @@ interface EquipmentSelectorProps {
   equippedItems: ConfigPartEquipment[];
   itemList: ConfigPartEquipment[];
   title?: string;
+  previewSex: CharacterSex;
 }
 
 const EquipmentSelector = ({
@@ -18,7 +19,8 @@ const EquipmentSelector = ({
   title,
   equipItem,
   unequipItem,
-  equippedItems
+  equippedItems,
+  previewSex
 }: EquipmentSelectorProps) => {
   const { cdnCheckProgress } = useEquipmentValidation();
   const showProgress =
@@ -44,6 +46,7 @@ const EquipmentSelector = ({
         equipItem={equipItem}
         unequipItem={unequipItem}
         equippedItems={equippedItems}
+        previewSex={previewSex}
       />
     </div>
   );

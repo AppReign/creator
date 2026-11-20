@@ -12,6 +12,7 @@ class AuthService {
       authority: config.loginAuthority,
       client_id: config.oidcClientId,
       redirect_uri: config.oidcRedirectUri,
+      post_logout_redirect_uri: config.postLogoutRedirectUri,
       response_type: "id_token token",
       scope: "openid profile email api1.read api1.write",
       automaticSilentRenew: false,

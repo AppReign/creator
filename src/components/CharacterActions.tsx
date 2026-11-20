@@ -6,6 +6,7 @@ import classes from "../styles/components/CharacterActions.module.scss";
 
 interface CharacterActionsProps {
   randomize: () => void;
+  randomizeDisabled?: boolean;
   save: () => void;
   share: () => void;
   refresh: () => void;
@@ -19,6 +20,7 @@ interface CharacterActionsProps {
 
 export const CharacterActions = ({
   randomize,
+  randomizeDisabled = false,
   save,
   share,
   refresh,
@@ -64,13 +66,20 @@ export const CharacterActions = ({
         >
           save
         </button>
-        <button
-          type="button"
-          className={classes.action}
-          onClick={randomize}
-        >
-          random
-        </button>
+        <span className={classes.tipWrap}>
+          <button
+            type="button"
+            className={classes.action}
+            onClick={randomize}
+            disabled={randomizeDisabled}
+            aria-describedby="random-uploaded-tip"
+          >
+            random
+          </button>
+          <span className={classes.tip} id="random-uploaded-tip" role="tooltip">
+            {`Picks random gear that is fully uploaded for ${characterSex}. Slots with nothing uploaded stay empty.`}
+          </span>
+        </span>
         <button
           type="button"
           className={classes.action}

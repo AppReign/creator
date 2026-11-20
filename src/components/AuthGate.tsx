@@ -18,7 +18,14 @@ const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (!authenticated) {
     return (
       <div className={classes.centered}>
-        <p>Redirecting to login…</p>
+        {authError ? (
+          <>
+            <h1 className={classes.title}>Sign-in failed</h1>
+            <p className={classes.error}>{authError}</p>
+          </>
+        ) : (
+          <p>Redirecting to login…</p>
+        )}
       </div>
     );
   }

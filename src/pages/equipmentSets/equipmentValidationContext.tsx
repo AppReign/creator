@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 import { useCreatorEquipment } from "../../context/CreatorEquipmentContext";
+import type { CharacterSex } from "../../interfaces/Config";
 import type { EquipmentSetBundle } from "../../types/equipmentSet";
 import { buildEquipmentCdnUrl } from "../../utils/apiCharacterDisplay";
 import { checkCdnImageUrls } from "../../utils/checkCdnImage";
@@ -20,10 +21,13 @@ export type ValidationMap = Record<string, BundleValidationResult>;
 
 export type EquipmentImageLoadState = "loading" | "ok" | "error";
 
+type SexUrlMap = Record<CharacterSex, string[]>;
+
 type ItemCdnPlan = {
   itemId: string;
   equipSet: string;
   urls: string[];
+  urlsBySex: SexUrlMap;
 };
 
 type ValidationContextValue = {
@@ -33,6 +37,7 @@ type ValidationContextValue = {
   cdnCheckProgress: { checked: number; total: number };
   getUrlStatus: (url: string) => EquipmentImageLoadState;
   getItemCdnStatus: (itemId: string) => CdnRollupStatus;
+  getItemSexCdnStatus: (itemId: string, sex: CharacterSex) => CdnRollupStatus;
   getSetCdnStatus: (equipSet: string) => CdnRollupStatus;
 };
 
@@ -43,6 +48,7 @@ const ValidationContext = createContext<ValidationContextValue>({
   cdnCheckProgress: { checked: 0, total: 0 },
   getUrlStatus: () => "loading",
   getItemCdnStatus: () => "na",
+  getItemSexCdnStatus: () => "na",
   getSetCdnStatus: () => "na"
 });
 
@@ -59,13 +65,18 @@ function buildItemCdnPlans(
       if (!creatorItem || !item.characterDisplay) continue;
       const refs = extractRequiredCharacterImages(item);
       const urls = new Set<string>();
+      const urlsBySex: SexUrlMap = { male: [], female: [] };
       for (const ref of refs) {
-        urls.add(buildEquipmentCdnUrl(creatorItem, ref, cdnBaseUrl, cdnCacheBust));
+        const url = buildEquipmentCdnUrl(creatorItem, ref, cdnBaseUrl, cdnCacheBust);
+        if (urls.has(url)) continue;
+        urls.add(url);
+        urlsBySex[ref.sex].push(url);
       }
       plans.push({
         itemId: item.id,
         equipSet: bundle.equipSet,
-        urls: Array.from(urls)
+        urls: Array.from(urls),
+        urlsBySex
       });
     }
   }
@@ -102,6 +113,14 @@ export function EquipmentValidationProvider({
     const map: Record<string, string[]> = {};
     for (const plan of itemPlans) {
       map[plan.itemId] = plan.urls;
+    }
+    return map;
+  }, [itemPlans]);
+
+  const itemUrlsBySex = useMemo(() => {
+    const map: Record<string, SexUrlMap> = {};
+    for (const plan of itemPlans) {
+      map[plan.itemId] = plan.urlsBySex;
     }
     return map;
   }, [itemPlans]);
@@ -157,17 +176,15 @@ export function EquipmentValidationProvider({
     [urlStatus]
   );
 
-  const getItemCdnStatus = useMemo(() => {
-    return (itemId: string): CdnRollupStatus => {
+  const statusForItemUrls = useMemo(() => {
+    return (itemId: string, urls: string[]): CdnRollupStatus => {
       const validationRow = Object.values(validationBySet)
         .flatMap((bundle) => bundle.items)
         .find((row) => row.item.id === itemId);
       if (!validationRow?.done) {
         return "issue";
       }
-
-      const urls = itemUrlsById[itemId] ?? [];
-      if (!urls.length) return "issue";
+      if (!urls.length) return "na";
 
       let ok = 0;
       let error = 0;
@@ -180,7 +197,21 @@ export function EquipmentValidationProvider({
       }
       return rollupCdnStatusFromCounts(urls.length, ok, error, pending);
     };
-  }, [validationBySet, itemUrlsById, urlStatus]);
+  }, [validationBySet, urlStatus]);
+
+  const getItemCdnStatus = useMemo(() => {
+    return (itemId: string): CdnRollupStatus => {
+      const urls = itemUrlsById[itemId] ?? [];
+      const status = statusForItemUrls(itemId, urls);
+      if (!urls.length && status === "na") return "issue";
+      return status;
+    };
+  }, [statusForItemUrls, itemUrlsById]);
+
+  const getItemSexCdnStatus = useMemo(() => {
+    return (itemId: string, sex: CharacterSex): CdnRollupStatus =>
+      statusForItemUrls(itemId, itemUrlsBySex[itemId]?.[sex] ?? []);
+  }, [statusForItemUrls, itemUrlsBySex]);
 
   const getSetCdnStatus = useMemo(() => {
     return (equipSet: string): CdnRollupStatus => {
@@ -218,6 +249,7 @@ export function EquipmentValidationProvider({
       cdnCheckProgress,
       getUrlStatus,
       getItemCdnStatus,
+      getItemSexCdnStatus,
       getSetCdnStatus
     }),
     [
@@ -227,6 +259,7 @@ export function EquipmentValidationProvider({
       cdnCheckProgress,
       getUrlStatus,
       getItemCdnStatus,
+      getItemSexCdnStatus,
       getSetCdnStatus
     ]
   );

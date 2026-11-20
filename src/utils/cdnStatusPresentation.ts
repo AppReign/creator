@@ -1,4 +1,5 @@
 import type { CdnBadgeStatus } from "../components/CdnStatusBadge";
+import type { CharacterSex } from "../interfaces/Config";
 import type { CdnRollupStatus } from "./cdnRollupStatus";
 
 type BadgeOptions = {
@@ -15,6 +16,8 @@ export function toCdnBadgeStatus(
       return "ok";
     case "pending":
       return "pending";
+    case "partial":
+      return "partial";
     case "issue":
       return "issue";
     case "error":
@@ -32,53 +35,75 @@ export function isCdnMissing(status: CdnRollupStatus): boolean {
 export function equipmentSetCdnTitle(status: CdnRollupStatus): string {
   switch (status) {
     case "ok":
-      return "All items have every sprite on CDN";
+      return "Uploaded. Every item in this set has its sprites.";
     case "pending":
-      return "Checking CDN sprites";
+      return "Checking if the sprites are uploaded.";
     case "issue":
-      return "Some items are missing characterDisplay data";
+      return "Some items have no sprite info yet.";
     case "error":
     default:
-      return "Some items are missing sprites on CDN";
+      return "Not fully uploaded. Some sprites for this set are missing.";
   }
 }
 
 export function baseSetCdnTitle(status: CdnRollupStatus): string {
   switch (status) {
     case "ok":
-      return "All base sprites on CDN";
+      return "Uploaded. All base sprites are there.";
     case "pending":
-      return "Checking CDN sprites";
+      return "Checking if the sprites are uploaded.";
     case "error":
     default:
-      return "Some sprites missing on CDN";
+      return "Not uploaded. Some base sprites are missing.";
   }
 }
 
 export function equipmentItemCdnTitle(status: CdnRollupStatus): string {
   switch (status) {
     case "ok":
-      return "All sprites on CDN";
+      return "Uploaded. All sprites for this item are there.";
     case "pending":
-      return "Checking CDN sprites";
+      return "Checking if the sprites are uploaded.";
+    case "partial":
+      return "Partly uploaded. Some sprites are there, some are missing.";
     case "issue":
-      return "Missing or empty characterDisplay";
+      return "No sprite info for this item yet.";
     case "error":
     case "na":
     default:
-      return "Some sprites missing on CDN";
+      return "Not uploaded. The sprites for this item are missing.";
+  }
+}
+
+export function equipmentSexCdnTitle(sex: CharacterSex, status: CdnRollupStatus): string {
+  const name = sex === "male" ? "Male" : "Female";
+  switch (status) {
+    case "ok":
+      return `${name} uploaded. All ${sex} sprites are there.`;
+    case "pending":
+      return `Checking ${sex} sprites.`;
+    case "partial":
+      return `${name} partly uploaded. Some ${sex} sprites are missing.`;
+    case "issue":
+      return `No ${sex} sprite info yet.`;
+    case "error":
+    case "na":
+    default:
+      return `${name} not uploaded. ${name} sprites are missing.`;
   }
 }
 
 export function basePartCdnTitle(status: CdnRollupStatus): string {
   switch (status) {
     case "ok":
-      return "All sprites on CDN";
+      return "Uploaded. All sprites for this part are there.";
     case "pending":
-      return "Checking CDN sprites";
+      return "Checking if the sprites are uploaded.";
+    case "partial":
+      return "Partly uploaded. Some sprites are there, some are missing.";
     case "error":
     default:
-      return "Some sprites missing on CDN";
+      return "Not uploaded. Some sprites for this part are missing.";
   }
 }
 
